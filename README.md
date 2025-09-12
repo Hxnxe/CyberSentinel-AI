@@ -2,7 +2,7 @@
 
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-[English README](README_EN.md) | [中文 README](README_ZH.md)
+[English README](README_EN.md) | [中文 README](README_ZH.md) | [Norsk README](README_NO.md)
 
 ---
 
