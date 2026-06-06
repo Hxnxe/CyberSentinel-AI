@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width initial-scale=1'>
+    <title>{title}</title>
+    <style>
+        :root {
+            /* 主色调 */
+            --primary-color: #6366f1;
+            --primary-light: #818cf8;
+            --primary-dark: #4f46e5;
+            
+            /* 背景色系 */
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --modal-bg: rgba(255, 255, 255, 0.9);
+            
+            /* 文字色系 */
+            --text-color: #1e293b;
+            --text-light: #64748b;
+            --text-muted: #94a3b8;
+            
+            /* 状态色系 */
+            --critical-color: #ef4444;
+            --high-color: #f97316;
+            --medium-color: #eab308;
+            --low-color: #22c55e;
+            --info-color: #3b82f6;
+            
+            /* 交互色系 */
+            --hover-color: #f1f5f9;
+            --border-color: #e2e8f0;
+            
+            /* 阴影 */
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.03);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.05);
+            
+            /* 动画 */
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            
+            /* 布局 */
+            --max-width: 1400px;
+            --header-height: 70px;
+            --spacing: 24px;
+            --radius: 12px;
+            --radius-lg: 16px;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                /* 暗色模式背景色系 */
+                --bg-color: #0f172a;
+                --card-bg: #1e293b;
+                --modal-bg: rgba(30, 41, 59, 0.9);
+                
+                /* 暗色模式文字色系 */
+                --text-color: #f1f5f9;
+                --text-light: #cbd5e1;
+                --text-muted: #94a3b8;
+                
+                /* 暗色模式边框和交互 */
+                --hover-color: #334155;
+                --border-color: #334155;
+                
+                /* 暗色模式阴影 */
+                --shadow-sm: 0 1px 2px rgba(0,0,0,0.1);
+                --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+                --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+                --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1);
+            }
+
+            .risk-critical {
+                background: rgba(239, 68, 68, 0.2);
+            }
+
+            .risk-high {
+                background: rgba(249, 115, 22, 0.2);
+            }
+
+            .risk-medium {
+                background: rgba(234, 179, 8, 0.2);
+            }
+
+            .risk-low {
+                background: rgba(34, 197, 94, 0.2);
+            }
+
+            .risk-info {
+                background: rgba(59, 130, 246, 0.2);
+            }
+
+            .loading {
+                background: linear-gradient(to right, var(--card-bg) 4%, var(--hover-color) 25%, var(--card-bg) 36%);
+            }
+        }
+
+        /* 滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-color);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-light);
+        }
+
+        /* 模态框滚动优化 */
+        .modal-content {
+            max-height: 90vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        /* 键盘快捷键提示 */
+        .keyboard-shortcut {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--card-bg);
+            padding: 12px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-lg);
+            font-size: 0.9rem;
+            color: var(--text-light);
+            display: none;
+            z-index: 1000;
+        }
+
+        .keyboard-shortcut.show {
+            display: block;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 移动端优化 */
+        @media (max-width: 768px) {
+            .modal-content {
+                margin: 0;
+                height: 100vh;
+                max-height: 100vh;
+                border-radius: 0;
+            }
+
+            .close-btn {
+                top: 16px;
+                right: 16px;
+            }
+
+            .keyboard-shortcut {
+                display: none !important;
+            }
+
+            .filter-group {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                padding-bottom: 8px;
+            }
+
+            .filter-btn {
+                white-space: nowrap;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: var(--card-bg);
+            height: var(--header-height);
+            box-shadow: var(--shadow-md);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header-content {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 0 var(--spacing);
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-section h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo-section .emoji {
+            font-size: 1.8rem;
+        }
+
+        .search-bar {
+            flex: 1;
+            max-width: 500px;
+            margin: 0 var(--spacing);
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 16px;
+            padding-left: 40px;
+            border: 1px solid var(--border-color);
+            border-radius: 30px;
+            background: var(--bg-color);
+            font-size: 0.95rem;
+            color: var(--text-color);
+            transition: var(--transition);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+            pointer-events: none;
+        }
+
+        .stats-bar {
+            background: var(--card-bg);
+            margin: var(--spacing) auto;
+            max-width: var(--max-width);
+            padding: var(--spacing);
+            border-radius: var(--radius);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing);
+        }
+
+        .stat-card {
+            padding: 20px;
+            background: var(--bg-color);
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-title {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .filter-section {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: var(--spacing);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing);
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            background: var(--card-bg);
+            color: var(--text-color);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .filter-btn:hover {
+            background: var(--hover-color);
+        }
+
+        .filter-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .filter-btn .count {
+            background: var(--bg-color);
+            color: var(--text-light);
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+        }
+
+        .container {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 0 var(--spacing);
+            flex: 1;
+        }
+
+        .list-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: var(--spacing);
+            margin: var(--spacing) 0;
+        }
+
+        .cve-item {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            transition: var(--transition);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            position: relative;
+        }
+
+        .cve-item:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-light);
+        }
+
+        .cve-info {
+            padding: 16px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .cve-icon {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            background: var(--bg-color);
+            color: var(--primary-color);
+            transition: var(--transition);
+        }
+
+        .cve-item:hover .cve-icon {
+            transform: scale(1.1);
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .cve-title {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-color);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            padding-right: 40px;
+        }
+
+        .cve-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: auto;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .risk-critical, .risk-high, .risk-medium, .risk-low, .risk-info {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .risk-critical {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--critical-color);
+        }
+
+        .risk-critical::before {
+            content: "⚠️";
+            font-size: 0.9em;
+        }
+
+        .risk-high {
+            background: rgba(249, 115, 22, 0.1);
+            color: var(--high-color);
+        }
+
+        .risk-high::before {
+            content: "🔥";
+            font-size: 0.9em;
+        }
+
+        .risk-medium {
+            background: rgba(234, 179, 8, 0.1);
+            color: var(--medium-color);
+        }
+
+        .risk-medium::before {
+            content: "⚡";
+            font-size: 0.9em;
+        }
+
+        .risk-low {
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--low-color);
+        }
+
+        .risk-low::before {
+            content: "✓";
+            font-size: 0.9em;
+        }
+
+        .risk-info {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--info-color);
+        }
+
+        .risk-info::before {
+            content: "ℹ️";
+            font-size: 0.9em;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(4px);
+            display: none;
+            opacity: 0;
+            transition: var(--transition);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: var(--modal-bg);
+            backdrop-filter: blur(16px);
+            margin: 40px auto;
+            padding: 32px;
+            max-width: 900px;
+            width: 90%;
+            border-radius: var(--radius-lg);
+            position: relative;
+            box-shadow: var(--shadow-xl);
+        }
+
+        .close-btn {
+            position: absolute;
+            right: 24px;
+            top: 24px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg);
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .close-btn:hover {
+            background: var(--critical-color);
+            color: white;
+            transform: rotate(90deg);
+        }
+
+        .modal h2 {
+            font-size: 1.5rem;
+            color: var(--text-color);
+            margin-bottom: 24px;
+            padding-right: 40px;
+        }
+
+        .detail-section {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .detail-section h3 {
+            font-size: 1.1rem;
+            color: var(--primary-color);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .table-container {
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background: var(--bg-color);
+            font-weight: 500;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        td {
+            font-size: 0.95rem;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .footer {
+            background: var(--card-bg);
+            padding: var(--spacing);
+            text-align: center;
+            color: var(--text-light);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border-color);
+            margin-top: auto;
+        }
+
+        @media (max-width: 768px) {
+            :root {
+                --spacing: 16px;
+            }
+
+            .header-content {
+                flex-direction: column;
+                padding: 12px var(--spacing);
+                height: auto;
+            }
+
+            .search-bar {
+                width: 100%;
+                max-width: none;
+                margin: 12px 0;
+            }
+
+            .filter-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .list-container {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                padding: 20px;
+                margin: 20px;
+            }
+        }
+
+        /* 加载动画 */
+        @keyframes shimmer {
+            0% {
+                background-position: -1000px 0;
+            }
+            100% {
+                background-position: 1000px 0;
+            }
+        }
+
+        .loading {
+            animation: shimmer 2s infinite linear;
+            background: linear-gradient(to right, var(--bg-color) 4%, var(--hover-color) 25%, var(--bg-color) 36%);
+            background-size: 1000px 100%;
+            border-radius: var(--radius);
+        }
+
+        .loading-card {
+            height: 160px;
+            margin-bottom: var(--spacing);
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo-section">
+                <h1><span class="emoji">🛡️</span>{title}</h1>
+            </div>
+            <div class="search-bar">
+                <input type="text" class="search-input" placeholder="搜索 CVE ID、关键词、组件...">
+                <span class="search-icon">🔍</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="stats-bar">
+        {stats}
+    </div>
+
+    <div class="filter-section">
+        {filters}
+    </div>
+
+    <div class="container">
+        <div class="list-container">
+            {content}
+        </div>
+    </div>
+
+    <div class="keyboard-shortcut">
+        <div>快捷键提示：</div>
+        <div>/ - 搜索</div>
+        <div>ESC - 关闭</div>
+        <div>← → - 切换风险等级</div>
+    </div>
+
+    <footer class="footer">
+        <p>本平台数据由 AI 自动分析生成，仅供参考。使用本平台信息时请自行承担相关风险。</p>
+    </footer>
+
+<script>
+// 加载状态管理
+let isLoading = false;
+
+function showLoading() {
+    isLoading = true;
+    const container = document.querySelector('.list-container');
+    container.innerHTML = '';
+    for (let i = 0; i < 6; i++) {
+        container.innerHTML += '<div class="cve-item loading loading-card"></div>';
+    }
+}
+
+function hideLoading() {
+    isLoading = false;
+    const loadingCards = document.querySelectorAll('.loading-card');
+    loadingCards.forEach(card => card.remove());
+}
+
+// 监听滚动事件
+window.addEventListener('scroll', function() {
+    const header = document.querySelector('.header');
+    if (window.scrollY > 20) {
+        header.style.background = 'rgba(255, 255, 255, 0.9)';
+    } else {
+        header.style.background = 'var(--card-bg)';
+    }
+});
+
+// 模态框功能
+function showModal(id) {
+    const modal = document.getElementById(id);
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    requestAnimationFrame(() => {
+        modal.style.opacity = '1';
+    });
+}
+
+function closeModal(id) {
+    const modal = document.getElementById(id);
+    modal.style.opacity = '0';
+    setTimeout(() => {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }, 300);
+}
+
+// 点击空白处关闭模态框
+window.onclick = function(event) {
+    if (event.target.classList.contains('modal')) {
+        const modal = event.target;
+        closeModal(modal.id);
+    }
+}
+
+// 搜索功能增强
+const searchInput = document.querySelector('.search-input');
+searchInput.addEventListener('input', debounce(async function(e) {
+    const searchTerm = e.target.value.toLowerCase();
+    if (searchTerm.length < 2) return;
+    
+    showLoading();
+    
+    const items = document.querySelectorAll('.cve-item:not(.loading-card)');
+    items.forEach(item => {
+        const title = item.querySelector('.cve-title').textContent.toLowerCase();
+        const meta = item.querySelector('.cve-meta').textContent.toLowerCase();
+        const shouldShow = title.includes(searchTerm) || meta.includes(searchTerm);
+        
+        if (shouldShow) {
+            item.style.display = 'flex';
+            item.style.opacity = '0';
+            item.style.transform = 'translateY(20px)';
+            requestAnimationFrame(() => {
+                item.style.opacity = '1';
+                item.style.transform = 'translateY(0)';
+            });
+        } else {
+            item.style.display = 'none';
+        }
+    });
+    
+    setTimeout(hideLoading, 500);
+}, 300));
+
+// 防抖函数
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+// 筛选功能增强
+document.querySelectorAll('.filter-btn').forEach(button => {
+    button.addEventListener('click', () => {
+        if (isLoading) return;
+        
+        showLoading();
+        
+        // 更新按钮状态
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        button.classList.add('active');
+
+        const selectedRisk = button.getAttribute('data-risk');
+        const items = document.querySelectorAll('.cve-item:not(.loading-card)');
+        
+        items.forEach(item => {
+            const riskSpan = item.querySelector('[class^="risk-"]');
+            const risk = riskSpan ? riskSpan.textContent : '';
+            
+            if (selectedRisk === 'ALL' || risk === selectedRisk) {
+                item.style.display = 'flex';
+                item.style.opacity = '0';
+                item.style.transform = 'translateY(20px)';
+                requestAnimationFrame(() => {
+                    item.style.opacity = '1';
+                    item.style.transform = 'translateY(0)';
+                });
+            } else {
+                item.style.display = 'none';
+            }
+        });
+        
+        setTimeout(hideLoading, 500);
+    });
+});
+
+// 初始化动画优化
+document.addEventListener('DOMContentLoaded', () => {
+    showLoading();
+    
+    const items = document.querySelectorAll('.cve-item:not(.loading-card)');
+    items.forEach((item, index) => {
+        item.style.opacity = '0';
+        item.style.transform = 'translateY(20px)';
+        setTimeout(() => {
+            item.style.opacity = '1';
+            item.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+    
+    setTimeout(hideLoading, 1000);
+});
+
+// 键盘快捷键支持
+document.addEventListener('keydown', function(e) {
+    // 搜索框快捷键
+    if (e.key === '/' && !e.target.matches('input, textarea')) {
+        e.preventDefault();
+        searchInput.focus();
+        showKeyboardShortcut('按 ESC 退出搜索');
+    }
+
+    // ESC 键处理
+    if (e.key === 'Escape') {
+        const activeModal = document.querySelector('.modal[style*="display: flex"]');
+        if (activeModal) {
+            closeModal(activeModal.id);
+        } else if (document.activeElement === searchInput) {
+            searchInput.blur();
+            searchInput.value = '';
+            const event = new Event('input');
+            searchInput.dispatchEvent(event);
+        }
+    }
+
+    // 左右方向键切换风险等级
+    if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && !e.target.matches('input, textarea')) {
+        const buttons = Array.from(document.querySelectorAll('.filter-btn'));
+        const activeIndex = buttons.findIndex(btn => btn.classList.contains('active'));
+        let newIndex;
+
+        if (e.key === 'ArrowLeft') {
+            newIndex = activeIndex > 0 ? activeIndex - 1 : buttons.length - 1;
+        } else {
+            newIndex = activeIndex < buttons.length - 1 ? activeIndex + 1 : 0;
+        }
+
+        buttons[newIndex].click();
+        showKeyboardShortcut(`已切换到: ${buttons[newIndex].textContent.trim()}`);
+    }
+});
+
+// 快捷键提示
+function showKeyboardShortcut(message) {
+    const shortcut = document.querySelector('.keyboard-shortcut');
+    if (message) {
+        shortcut.textContent = message;
+    }
+    shortcut.classList.add('show');
+    setTimeout(() => {
+        shortcut.classList.remove('show');
+    }, 2000);
+}
+
+// 搜索框焦点处理
+searchInput.addEventListener('focus', () => {
+    showKeyboardShortcut('按 ESC 退出搜索');
+});
+
+// 模态框滚动优化
+let currentModal = null;
+let scrollPosition = 0;
+
+function showModal(id) {
+    currentModal = document.getElementById(id);
+    scrollPosition = window.pageYOffset;
+    currentModal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${scrollPosition}px`;
+    document.body.style.width = '100%';
+    requestAnimationFrame(() => {
+        currentModal.style.opacity = '1';
+    });
+}
+
+function closeModal(id) {
+    const modal = document.getElementById(id);
+    modal.style.opacity = '0';
+    setTimeout(() => {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.width = '';
+        window.scrollTo(0, scrollPosition);
+        currentModal = null;
+    }, 300);
+}
+
+// 触摸滑动支持
+let touchStartY = 0;
+let touchEndY = 0;
+
+document.addEventListener('touchstart', e => {
+    touchStartY = e.touches[0].clientY;
+}, false);
+
+document.addEventListener('touchmove', e => {
+    if (!currentModal) return;
+    touchEndY = e.touches[0].clientY;
+    const modalContent = currentModal.querySelector('.modal-content');
+    const isAtTop = modalContent.scrollTop === 0;
+    const isAtBottom = modalContent.scrollHeight - modalContent.scrollTop === modalContent.clientHeight;
+
+    if ((isAtTop && touchEndY > touchStartY) || (isAtBottom && touchEndY < touchStartY)) {
+        e.preventDefault();
+    }
+}, { passive: false });
+
+document.addEventListener('touchend', e => {
+    if (!currentModal) return;
+    const diff = touchStartY - touchEndY;
+    const modalContent = currentModal.querySelector('.modal-content');
+    const isAtTop = modalContent.scrollTop === 0;
+
+    if (isAtTop && diff < -100) {
+        closeModal(currentModal.id);
+    }
+}, false);
+</script>
+</body>
+</html>

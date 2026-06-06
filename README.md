@@ -1,54 +1,115 @@
-# CyberSentinel AI - 自动化安全监控与AI分析系统
+# CyberSentinel AI
 
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+CyberSentinel AI is an automated security monitoring system for tracking CVE-related repositories, security-focused GitHub projects, and security articles. It can analyze collected data with AI providers, generate Markdown/HTML reports, and optionally publish daily reports to a blog service.
 
-[English README](README_EN.md) | [中文 README](README_ZH.md)
+- 中文说明: [README_ZH.md](README_ZH.md)
+- English guide: [README_EN.md](README_EN.md)
 
----
+## What it does
 
-**CyberSentinel AI** 是一个强大的自动化安全监控与AI分析系统，旨在帮助安全研究人员和爱好者 **实时追踪最新的安全漏洞 (CVE)** 和 **GitHub 上的安全相关仓库**，并利用 **人工智能技术**进行深度分析，最终将有价值的安全情报 **自动发布到博客平台**。
+- Monitors GitHub for CVE proof-of-concept repositories and security tools.
+- Tracks configured high-priority repositories.
+- Uses OpenAI-compatible providers and Gemini for AI-assisted triage.
+- Stores monitor state in SQLite.
+- Generates local Markdown and HTML reports.
+- Optionally publishes reports to a blog API when `BLOG_TOKEN` is configured.
 
-**🚀  功能亮点**
+## Quick start
 
-*   **多源数据监控** (CVE & GitHub 仓库)
-*   **智能 AI 分析** (OpenAI & Gemini 双引擎)
-*   **全自动化工作流** (7x24 监控、每日简报、动态黑名单)
-*   **灵活的配置与管理** (多 Token 支持、可配置参数、详细日志)
-*   **博客自动发布** (集成博客平台、Markdown 报告)
+```bash
+git clone https://github.com/Hxnxe/CyberSentinel-AI.git
+cd CyberSentinel-AI
 
-**🛠️  技术实现**
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
 
-*   **监控模块 (Monitors)**: `cve_monitor.py`, `github_monitor.py`
-*   **AI 分析模块 (AI)**: `analyzer.py`
-*   **数据处理与管理 (Utils)**: `logger.py`, `csv_writer.py`, `article_fetcher.py`, `article_manager.py`, `blog_manager.py`
-*   **数据库 (Database)**: `database/models.py`
-*   **配置文件 (Config)**: `config.py`
-*   **主程序 (Main)**: `main.py`
+cp .env.example .env
+python main.py --check-config
+python -m pytest -q
+python main.py
+```
 
-**⚙️  运行环境**
+The project imports and tests without private credentials. Real monitoring needs your own `.env` values.
 
-*   Python 3.8+
-*   依赖库 (见 `requirements.txt`)
+You can also let the bootstrap script perform the setup:
 
-**📦  安装步骤**
+```bash
+bash scripts/bootstrap.sh
+```
 
-请参考 [English README](README_EN.md) 或 [中文 README](README_ZH.md) 中的详细安装步骤。
+## Required configuration for real monitoring
 
-**📝  后续计划**
+Edit `.env` after copying `.env.example`:
 
-*   更多数据源支持
-*   更精细化的 AI 分析
-*   更丰富的功能
-*   Web UI 管理界面
+```dotenv
+GITHUB_TOKENS=["replace-with-your-github-token"]
+PRIMARY_AI_KEY=replace-with-your-openai-compatible-key
+PRIMARY_AI_BASE=https://api.openai.com/v1
+PRIMARY_AI_MODEL=gpt-4.1-nano
+```
 
-**🤝  贡献**
+Gemini and blog publishing are optional:
 
-欢迎参与项目贡献！如果您有任何建议或 Bug 报告，请提交 Issue 或 Pull Request。
+```dotenv
+GEMINI_AI_KEY=
+BLOG_BASE_URL=http://127.0.0.1
+BLOG_TOKEN=
+```
 
-**📜  许可证**
+If `BLOG_TOKEN` is empty, the system keeps reports local and skips blog API calls.
 
-本项目采用 MIT 许可证，详情请见 [LICENSE](LICENSE) 文件。
+## Generated files
 
----
+Runtime files are intentionally ignored by git:
 
-**感谢您的关注！**  ⭐  **Star**  本项目以支持我们的工作！
+```text
+.env
+cve_database.db
+logs/
+results/
+data/
+venv/
+.venv/
+__pycache__/
+.pytest_cache/
+```
+
+Do not commit generated databases, logs, reports, or private credentials.
+
+## Development checks
+
+```bash
+python main.py --check-config
+python -m pytest -q
+```
+
+The public release includes tests for:
+
+- configuration loading without private credentials;
+- `.env.example` completeness and sanitization;
+- `.gitignore` protection for private/generated files;
+- GitHub token rotation behavior;
+- monitor quality filtering;
+- database persistence;
+- optional blog publishing behavior.
+
+## Project layout
+
+```text
+ai/          AI client, prompts, schemas, result validation, analysis logic
+clients/     GitHub API client
+database/    SQLAlchemy models, sessions, repositories, initialization
+monitors/    CVE and GitHub repository monitors
+reports/     Markdown/HTML report generation
+utils/       logging, article, blacklist, blog, CSV, and Markdown helpers
+scripts/     bootstrap and configuration doctor helpers
+docs/        configuration, quick-start, and deployment notes
+tests/       pytest suite
+main.py      runtime entrypoint
+config.py    environment-backed configuration
+```
+
+## License
+
+MIT. See [LICENSE](LICENSE).

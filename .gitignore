@@ -1,0 +1,51 @@
+# Local secrets
+.env
+.env.*
+!.env.example
+
+# Python cache/runtime
+__pycache__/
+*.py[cod]
+*.pyc
+*.pyo
+*.pyd
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+venv/
+.venv/
+env/
+.envrc
+
+# Local databases and generated state
+*.db
+*.sqlite
+*.sqlite3
+:memory:
+logs/
+results/
+data/
+reports/daily/
+
+# Build/package artifacts
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Editor and OS files
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Local backups and temporary files
+*.bak
+*.tmp
+*.log

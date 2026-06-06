@@ -1,0 +1,60 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cybersentinel-ai"
+version = "0.1.0"
+description = "Automated CVE and security repository monitoring with AI analysis"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+  { name = "CyberSentinel AI contributors" }
+]
+keywords = ["security", "cve", "github", "monitoring", "ai", "threat-intelligence"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Information Technology",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Security",
+]
+dependencies = [
+  "sqlalchemy>=2.0.0",
+  "requests>=2.31.0",
+  "PyGithub>=2.1.1",
+  "python-dateutil>=2.8.2",
+  "beautifulsoup4>=4.12.2",
+  "lxml>=4.9.3",
+  "markdown>=3.5.1",
+  "colorlog>=6.7.0",
+  "aiohttp>=3.9.1",
+  "feedparser>=6.0.10",
+  "openai>=1.3.0",
+  "pyyaml>=6.0.1",
+  "schedule>=1.2.1",
+  "python-dotenv>=1.0.0",
+  "tqdm>=4.66.1",
+  "google-genai",
+  "GitPython",
+  "pydantic>=2.6.0",
+  "pydantic-settings>=2.2.1",
+]
+
+[project.scripts]
+cybersentinel-ai = "main:main"
+
+[tool.setuptools]
+py-modules = ["config", "main"]
+
+[tool.setuptools.packages.find]
+include = ["ai*", "clients*", "database*", "monitors*", "reports*", "utils*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-q"
