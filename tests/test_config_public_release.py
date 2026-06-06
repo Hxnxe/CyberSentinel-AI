@@ -88,3 +88,20 @@ def test_config_imports_with_empty_public_environment(monkeypatch, tmp_path):
     assert reloaded.settings.gemini_ai_key == ""
     assert reloaded.settings.monitor_interval > 0
     assert Path(reloaded.settings.database_path).name == "cve_database.db"
+
+
+def test_config_treats_empty_complex_env_values_as_unconfigured(monkeypatch, tmp_path):
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("GITHUB_TOKENS", "")
+    monkeypatch.setenv("BACKUP_AI_CONFIGS", "")
+    monkeypatch.delenv("GITHUB_TOKEN", raising=False)
+    monkeypatch.delenv("PRIMARY_AI_KEY", raising=False)
+    monkeypatch.delenv("GEMINI_AI_KEY", raising=False)
+    monkeypatch.delenv("BLOG_TOKEN", raising=False)
+
+    import config
+
+    reloaded = importlib.reload(config)
+
+    assert reloaded.settings.github_tokens == []
+    assert reloaded.settings.backup_ai_configs == []

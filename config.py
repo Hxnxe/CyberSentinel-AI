@@ -3,14 +3,17 @@ from __future__ import annotations
 import json
 import os
 from pathlib import Path
-from typing import Any, ClassVar
+from typing import Annotated, Any, ClassVar
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
 try:
-    from pydantic_settings import BaseSettings, SettingsConfigDict
+    from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 except ModuleNotFoundError:
     from dotenv import dotenv_values
+
+    class NoDecode:
+        """Marker used by pydantic-settings when available."""
 
     class SettingsConfigDict(dict):
         """兼容缺少 pydantic-settings 的运行环境。"""
@@ -183,7 +186,10 @@ class Settings(BaseSettings):
     primary_ai_model: str = Field(default="qwen3-next", alias="PRIMARY_AI_MODEL")
 
     # Backup AI configs (JSON list)
-    backup_ai_configs: list[dict[str, str]] = Field(default_factory=list, alias="BACKUP_AI_CONFIGS")
+    backup_ai_configs: Annotated[list[dict[str, str]], NoDecode] = Field(
+        default_factory=list,
+        alias="BACKUP_AI_CONFIGS",
+    )
 
     # Gemini config
     gemini_ai_key: str = Field(default="", alias="GEMINI_AI_KEY")
@@ -194,7 +200,7 @@ class Settings(BaseSettings):
     )
 
     # GitHub tokens
-    github_tokens: list[str] = Field(default_factory=list, alias="GITHUB_TOKENS")
+    github_tokens: Annotated[list[str], NoDecode] = Field(default_factory=list, alias="GITHUB_TOKENS")
     github_token: str = Field(default="", alias="GITHUB_TOKEN")
 
     # Blog

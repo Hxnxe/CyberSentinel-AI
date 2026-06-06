@@ -37,7 +37,7 @@ jobs:
     timeout-minutes: 30
     env:
       GITHUB_TOKEN: ${{ secrets.REPORT_GITHUB_TOKEN || github.token }}
-      GITHUB_TOKENS: ${{ secrets.REPORT_GITHUB_TOKENS || '' }}
+      GITHUB_TOKENS: ${{ secrets.REPORT_GITHUB_TOKENS || '[]' }}
       REPORT_OUTPUT: artifacts/github-security-report.md
       REPORT_MAX_ITEMS: ${{ github.event.inputs.max_items || '20' }}
       REPORT_KEYWORD_LIMIT: ${{ github.event.inputs.keyword_limit || '5' }}
