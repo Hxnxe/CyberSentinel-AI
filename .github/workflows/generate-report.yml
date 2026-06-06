@@ -1,0 +1,89 @@
+name: Generate Security Report
+
+on:
+  workflow_dispatch:
+    inputs:
+      max_items:
+        description: Maximum candidates per section
+        required: false
+        default: "20"
+      keyword_limit:
+        description: Maximum default keywords to query
+        required: false
+        default: "5"
+      keywords:
+        description: Optional comma-separated keyword override
+        required: false
+        default: ""
+      include_cve:
+        description: Include CVE candidate collection
+        required: false
+        type: boolean
+        default: true
+      include_repositories:
+        description: Include repository candidate collection
+        required: false
+        type: boolean
+        default: true
+  schedule:
+    - cron: "0 1 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  generate-report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GITHUB_TOKEN: ${{ secrets.REPORT_GITHUB_TOKEN || github.token }}
+      GITHUB_TOKENS: ${{ secrets.REPORT_GITHUB_TOKENS || '' }}
+      REPORT_OUTPUT: artifacts/github-security-report.md
+      REPORT_MAX_ITEMS: ${{ github.event.inputs.max_items || '20' }}
+      REPORT_KEYWORD_LIMIT: ${{ github.event.inputs.keyword_limit || '5' }}
+      REPORT_KEYWORDS: ${{ github.event.inputs.keywords || '' }}
+      REPORT_INCLUDE_CVE: ${{ github.event.inputs.include_cve || 'true' }}
+      REPORT_INCLUDE_REPOSITORIES: ${{ github.event.inputs.include_repositories || 'true' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Generate report
+        run: |
+          mkdir -p artifacts
+          args=(
+            --output "$REPORT_OUTPUT"
+            --max-items "$REPORT_MAX_ITEMS"
+            --keyword-limit "$REPORT_KEYWORD_LIMIT"
+            --database-path github-actions-report.db
+          )
+          if [ -n "$REPORT_KEYWORDS" ]; then
+            args+=(--keywords "$REPORT_KEYWORDS")
+          fi
+          if [ "$REPORT_INCLUDE_CVE" != "true" ]; then
+            args+=(--skip-cve)
+          fi
+          if [ "$REPORT_INCLUDE_REPOSITORIES" != "true" ]; then
+            args+=(--skip-repositories)
+          fi
+          python scripts/generate_report.py "${args[@]}"
+
+      - name: Upload report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cybersentinel-ai-report-${{ github.run_number }}
+          path: artifacts/*.md
+          if-no-files-found: error
+          retention-days: 14

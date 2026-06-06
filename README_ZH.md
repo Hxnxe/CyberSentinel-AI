@@ -11,6 +11,7 @@ CyberSentinel AI 是一个自动化安全监控与 AI 分析系统，用于跟�
 - 使用 SQLite 保存监控状态和分析记录。
 - 生成 Markdown/HTML 报告。
 - 配置 `BLOG_TOKEN` 后可自动同步到博客；未配置时自动跳过博客发布。
+- 支持 GitHub Actions 自动生成 Markdown 报告并作为 Artifact 保存，不写回仓库。
 
 ## 快速开始
 
@@ -101,6 +102,7 @@ config.py    基于环境变量的配置入口
 
 更多说明：
 
+- [GitHub Actions 自动报告](docs/GITHUB_ACTIONS_REPORTS.md)
 - [中文快速开始](docs/QUICKSTART_ZH.md)
 - [配置说明](docs/CONFIGURATION.md)
 - [部署说明](docs/DEPLOYMENT.md)

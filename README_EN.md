@@ -11,6 +11,7 @@ CyberSentinel AI is an automated security monitoring and AI analysis system. It 
 - Store monitor state in SQLite.
 - Generate Markdown and HTML reports.
 - Publish reports to a blog API only when `BLOG_TOKEN` is configured.
+- Generate GitHub Actions Markdown report artifacts without committing runtime data.
 
 ## Quick start
 
@@ -96,6 +97,7 @@ config.py    environment-backed configuration
 
 More documentation:
 
+- [GitHub Actions reports](docs/GITHUB_ACTIONS_REPORTS.md)
 - [Configuration guide](docs/CONFIGURATION.md)
 - [Deployment notes](docs/DEPLOYMENT.md)
 

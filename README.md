@@ -13,6 +13,7 @@ CyberSentinel AI is an automated security monitoring system for tracking CVE-rel
 - Stores monitor state in SQLite.
 - Generates local Markdown and HTML reports.
 - Optionally publishes reports to a blog API when `BLOG_TOKEN` is configured.
+- Generates GitHub Actions Markdown report artifacts without committing runtime data.
 
 ## Quick start
 
@@ -109,6 +110,12 @@ tests/       pytest suite
 main.py      runtime entrypoint
 config.py    environment-backed configuration
 ```
+
+## More documentation
+
+- [GitHub Actions reports](docs/GITHUB_ACTIONS_REPORTS.md)
+- [Configuration guide](docs/CONFIGURATION.md)
+- [Deployment notes](docs/DEPLOYMENT.md)
 
 ## License
 
